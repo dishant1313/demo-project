@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("member")
+  tasks     Task[]   @relation("assignee")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  storyPoints Int      @default(0)
+  assignee    User?    @relation("assignee", fields: [assigneeId], references: [id])
+  assigneeId  Int?
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  sprintId    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Sprint {
+  id        Int      @id @default(autoincrement())
+  name      String
+  goal      String?
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("planned")
+  velocity  Int      @default(0)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
